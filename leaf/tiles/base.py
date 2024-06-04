@@ -1,13 +1,15 @@
-from leaf.tiles import base
 
+class Base:
+    produce_food = 0
+    start_rot = 1000
+    rot_max = 100
+    start_rot_min = 10
 
-class Default(base.Base):
-    color = (100, 100, 100)
-    produce_food = -1
+    def __init__(self):
+        self.is_rottening = False
 
     def update(self, tile):
-        if tile.owner is not None:
-            tile.add_ferments(0, -1)
+        tile.ferments[0] += self.produce_food
         if tile.ferments[0] > self.start_rot:
             tile.add_ferments(1, int((tile.ferments[0] - self.start_rot) / 10))
             self.is_rottening = True
@@ -15,12 +17,12 @@ class Default(base.Base):
             tile.add_ferments(1, self.start_rot_min - tile.ferments[0])
             self.is_rottening = True
         else:
-            tile.add_ferments(1, -1)
             self.is_rottening = False
         tile.visible_ferments = tile.ferments.copy()
 
-    def get_penetration(self, ferment_id, direction) -> float:
-        return 0.5
+    def add_ferment(self, tile, ferment_id, amount):
+        tile.ferments[ferment_id] = max(tile.ferments[ferment_id] + amount, 0)
+        tile.visible_ferments = tile.ferments.copy()
 
-    def limit(self, ferment_id) -> int:
-        return 20
+    def needed_buttons(self) -> list[str]:
+        return []
